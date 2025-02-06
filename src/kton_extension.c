@@ -139,7 +139,7 @@ static void kton_bind(duckdb_bind_info info)
     duckdb_bind_add_result_column(info, "payee_payer_name_source", varchar_type);
     duckdb_bind_add_result_column(info, "payee_account_number", varchar_type);
     duckdb_bind_add_result_column(info, "payee_account_change_info", varchar_type);
-    duckdb_bind_add_result_column(info, "reference", varchar_type);
+    duckdb_bind_add_result_column(info, "reference", bigint_type);
     duckdb_bind_add_result_column(info, "form_number", varchar_type);
     duckdb_bind_add_result_column(info, "level_id", varchar_type);
 
@@ -311,12 +311,16 @@ static void kton_function(duckdb_function_info info, duckdb_data_chunk output)
             // Reference: 160-179 (number)
             strncpy(field, line + 159, 20);
             field[20] = '\0';
-            // Trim trailing spaces
-            len = strlen(field);
-            while (len > 0 && field[len-1] == ' ') {
-                field[--len] = '\0';
+            // Convert to int64
+            int64_t reference = 0;
+            for (int i = 0; i < 20 && field[i] != '\0' && field[i] != ' '; i++) {
+                if (isdigit(field[i])) {
+                    reference = reference * 10 + (field[i] - '0');
+                }
             }
-            duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 18), output_size, field);
+            duckdb_vector reference_vector = duckdb_data_chunk_get_vector(output, 18);
+            int64_t *reference_data = (int64_t *)duckdb_vector_get_data(reference_vector);
+            reference_data[output_size] = reference;
 
             // Form number: 180-187 (alphanumeric)
             strncpy(field, line + 179, 8);
