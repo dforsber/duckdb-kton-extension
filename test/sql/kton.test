@@ -17,6 +17,6 @@ PRAGMA enable_verification
 
 # Confirm the extension works
 query I
-SELECT filing_id FROM read_kton('example.kton') LIMIT 1
+SELECT filing_id FROM read_kton('test/data/test.kton') LIMIT 1
 ----
-2312098E5243472851
+2312098E5243985673

@@ -6,7 +6,7 @@ This extension is based on the glorious [Quack Zig C API extension](https://gith
 
 > Proof that you can write text file table scanner function with the help of AI in less than an evening.
 
-**DISCLAIMER: This extension is not product proofed and probably crashes with invalid formatted data. Example data is not provided because we don't have anonymized example yet.**
+**DISCLAIMER: This extension is not product proofed and probably crashes with invalid formatted data.**
 
 ## Building the Extension
 
