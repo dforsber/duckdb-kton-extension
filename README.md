@@ -15,7 +15,6 @@ Install [Zig](https://ziglang.org) and [uv](https://docs.astral.sh/uv/). That's 
 > See more about the build commands in the original DuckDB Zig repo: [Quack Zig C API extension](https://github.com/mlafeldt/quack-zig).
 
 ```shell
-# Build the extension for all supported DuckDB versions and platforms (Linux, macOS, Windows)
 zig build
 ```
 
@@ -23,7 +22,7 @@ zig build
 
 Run the [SQL logic tests](https://duckdb.org/docs/dev/sqllogictest/intro.html) with `zig build test`.
 
-```
+```shell
 zig build test
 ```
 
@@ -34,13 +33,15 @@ zig build test
 v1.1.3 19864453f7
 Enter ".help" for usage hints.
 D LOAD 'zig-out/v1.1.3/osx_arm64/kton.duckdb_extension';
-D SELECT * FROM read_kton('example.kton') LIMIT 1;
-┌───────────────┬───────────────┬───────────────┬────────────────────┬────────────────────┬──────────────┬────────────┬──────────────┬────────────────────┐
-│ material_code │ record_number │ record_length │ transaction_number │     filing_id      │ booking_date │ value_date │ payment_date │ transaction_amount │
-│    varchar    │    varchar    │    varchar    │       int32        │      varchar       │     date     │    date    │     date     │       int64        │
-├───────────────┼───────────────┼───────────────┼────────────────────┼────────────────────┼──────────────┼────────────┼──────────────┼────────────────────┤
-│ T             │ 10            │ 188           │                  1 │ 1312098E5212398765 │ 2023-12-11   │ 2023-12-09 │ 2023-12-09   │               5000 │
-└───────────────┴───────────────┴───────────────┴────────────────────┴────────────────────┴──────────────┴────────────┴──────────────┴────────────────────┘
+D SELECT * FROM read_kton('test/data/test.kton');
+┌───────────────┬───────────────┬───────────────┬────────────────────┬────────────────────┬──────────────┬────────────┬──────────────┬───┬──────────────┬───────────────┬───────────────────┬──────────────────────┬──────────────────────┬──────────────────────┬───────────┬─────────────┬──────────┐
+│ material_code │ record_number │ record_length │ transaction_number │     filing_id      │ booking_date │ value_date │ payment_date │ … │ receipt_code │ transfer_type │ payee_payer_name  │ payee_payer_name_s…  │ payee_account_number │ payee_account_chan…  │ reference │ form_number │ level_id │
+│    varchar    │    varchar    │    varchar    │       int32        │      varchar       │     date     │    date    │     date     │   │   varchar    │    varchar    │      varchar      │       varchar        │       varchar        │       varchar        │   int64   │   varchar   │ varchar  │
+├───────────────┼───────────────┼───────────────┼────────────────────┼────────────────────┼──────────────┼────────────┼──────────────┼───┼──────────────┼───────────────┼───────────────────┼──────────────────────┼──────────────────────┼──────────────────────┼───────────┼─────────────┼──────────┤
+│ T             │ 10            │ 188           │                  2 │ 2312098E5243985673 │ 2023-12-11   │ 2023-12-09 │ 2023-12-09   │ … │              │ A             │ BCDEFGHIJK MATTIA │                      │                      │                      │     15082 │             │          │
+├───────────────┴───────────────┴───────────────┴────────────────────┴────────────────────┴──────────────┴────────────┴──────────────┴───┴──────────────┴───────────────┴───────────────────┴──────────────────────┴──────────────────────┴──────────────────────┴───────────┴─────────────┴──────────┤
+│ 1 rows                                                                                                                                                                                                                                                                        21 columns (17 shown) │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## License
