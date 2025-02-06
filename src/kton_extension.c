@@ -235,7 +235,8 @@ static void kton_function(duckdb_function_info info, duckdb_data_chunk output)
             field[35] = '\0';
             // Trim trailing spaces
             int len = strlen(field);
-            while (len > 0 && field[len-1] == ' ') {
+            while (len > 0 && field[len - 1] == ' ')
+            {
                 field[--len] = '\0';
             }
             duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 11), output_size, field);
