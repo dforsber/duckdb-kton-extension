@@ -139,6 +139,9 @@ static void kton_bind(duckdb_bind_info info)
     duckdb_bind_add_result_column(info, "payee_payer_name_source", varchar_type);
     duckdb_bind_add_result_column(info, "payee_account_number", varchar_type);
     duckdb_bind_add_result_column(info, "payee_account_change_info", varchar_type);
+    duckdb_bind_add_result_column(info, "reference", varchar_type);
+    duckdb_bind_add_result_column(info, "form_number", varchar_type);
+    duckdb_bind_add_result_column(info, "level_id", varchar_type);
 
     duckdb_destroy_logical_type(&varchar_type);
     duckdb_destroy_logical_type(&int_type);
@@ -305,11 +308,30 @@ static void kton_function(duckdb_function_info info, duckdb_data_chunk output)
             field[1] = '\0';
             duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 17), output_size, field);
 
-            // TODO: Reference: 160-179 (number)
+            // Reference: 160-179 (number)
+            strncpy(field, line + 159, 20);
+            field[20] = '\0';
+            // Trim trailing spaces
+            len = strlen(field);
+            while (len > 0 && field[len-1] == ' ') {
+                field[--len] = '\0';
+            }
+            duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 18), output_size, field);
 
-            // TODO: Form number: 180-187 (alphanumeric)
+            // Form number: 180-187 (alphanumeric)
+            strncpy(field, line + 179, 8);
+            field[8] = '\0';
+            // Trim trailing spaces
+            len = strlen(field);
+            while (len > 0 && field[len-1] == ' ') {
+                field[--len] = '\0';
+            }
+            duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 19), output_size, field);
 
-            // TODO: Level ID: 188-188 (alphanumeric)
+            // Level ID: 188-188 (alphanumeric)
+            strncpy(field, line + 187, 1);
+            field[1] = '\0';
+            duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 20), output_size, field);
 
             output_size++;
         }
