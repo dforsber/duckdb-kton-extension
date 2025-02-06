@@ -137,6 +137,8 @@ static void kton_bind(duckdb_bind_info info)
     duckdb_bind_add_result_column(info, "transfer_type", varchar_type);
     duckdb_bind_add_result_column(info, "payee_payer_name", varchar_type);
     duckdb_bind_add_result_column(info, "payee_payer_name_source", varchar_type);
+    duckdb_bind_add_result_column(info, "payee_account_number", varchar_type);
+    duckdb_bind_add_result_column(info, "payee_account_change_info", varchar_type);
 
     duckdb_destroy_logical_type(&varchar_type);
     duckdb_destroy_logical_type(&int_type);
@@ -288,9 +290,20 @@ static void kton_function(duckdb_function_info info, duckdb_data_chunk output)
             field[1] = '\0';
             duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 15), output_size, field);
 
-            // TODO: Payee's account number: 145-158 (alphanumeric)
+            // Payee's account number: 145-158 (alphanumeric)
+            strncpy(field, line + 144, 14);
+            field[14] = '\0';
+            // Trim trailing spaces
+            len = strlen(field);
+            while (len > 0 && field[len-1] == ' ') {
+                field[--len] = '\0';
+            }
+            duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 16), output_size, field);
 
-            // TODO: Payee's account change information: 159-159 (alphanumeric)
+            // Payee's account change information: 159-159 (alphanumeric)
+            strncpy(field, line + 158, 1);
+            field[1] = '\0';
+            duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 17), output_size, field);
 
             // TODO: Reference: 160-179 (number)
 
