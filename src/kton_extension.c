@@ -120,7 +120,7 @@ static void kton_bind(duckdb_bind_info info)
     duckdb_logical_type bigint_type = create_bigint_type();
     duckdb_logical_type date_type = create_date_type();
 
-    // Following KTON spec fields from basic transaction record (T101)
+    // Following KTON spec fields from basic transaction record (T10)
     duckdb_bind_add_result_column(info, "material_code", varchar_type);
     duckdb_bind_add_result_column(info, "record_number", varchar_type);
     duckdb_bind_add_result_column(info, "record_length", varchar_type);
@@ -165,22 +165,22 @@ static void kton_function(duckdb_function_info info, duckdb_data_chunk output)
         {
             char field[256];
 
-            // Material code (T)
+            // Material code (T): 1-1
             strncpy(field, line, 1);
             field[1] = '\0';
             duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 0), output_size, field);
 
-            // Record number (10)
+            // Record number (10): 2-3 (alphanumeric)
             strncpy(field, line + 1, 2);
             field[2] = '\0';
             duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 1), output_size, field);
 
-            // Record length
+            // Record length - convert to integer: 4-6 (numeric)
             strncpy(field, line + 3, 3);
             field[3] = '\0';
             duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 2), output_size, field);
 
-            // Transaction number - convert to integer
+            // Transaction number - convert to integer: 7-12 (number)
             char num_field[7];
             strncpy(num_field, line + 6, 6);
             num_field[6] = '\0';
@@ -191,42 +191,48 @@ static void kton_function(duckdb_function_info info, duckdb_data_chunk output)
             int32_t *int_data = (int32_t *)data;
             int_data[output_size] = transaction_number;
 
-            // Filing ID
+            // Filing ID: 13-30 (alphanumeric)
             strncpy(field, line + 12, 18);
             field[18] = '\0';
             duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 4), output_size, field);
 
-            // Booking date
+            // Booking date - convert to DATE: 31-36 (number)
             strncpy(field, line + 30, 6);
             field[6] = '\0';
             duckdb_vector booking_vector = duckdb_data_chunk_get_vector(output, 5);
             duckdb_date *booking_data = (duckdb_date *)duckdb_vector_get_data(booking_vector);
             booking_data[output_size] = parse_yymmdd_date(field);
 
-            // Value date
+            // Value date - convert to DATE: 37-42 (number)
             strncpy(field, line + 36, 6);
             field[6] = '\0';
             duckdb_vector value_vector = duckdb_data_chunk_get_vector(output, 6);
             duckdb_date *value_data = (duckdb_date *)duckdb_vector_get_data(value_vector);
             value_data[output_size] = parse_yymmdd_date(field);
 
-            // Payment date
+            // Payment date - convert to DATE: 43-48 (number)
             strncpy(field, line + 42, 6);
             field[6] = '\0';
             duckdb_vector payment_vector = duckdb_data_chunk_get_vector(output, 7);
             duckdb_date *payment_data = (duckdb_date *)duckdb_vector_get_data(payment_vector);
             payment_data[output_size] = parse_yymmdd_date(field);
 
-            // Transaction amount in eurocents
+            // TODO: Transaction code: 49-49 (alphanumeric)
+            // 1 = deposit
+            // 2 = withdrawal
+            // 3 = correction of deposit
+            // 4 = correction of withdrawal
+
+            // TODO: Entry node code: 50-52 (alphanumeric)
+
+            // TODO: Narrative text: 53-87 (alphanumeric)
+
+            // Transaction amount in eurocents, including sign on 88-88
             char amount_str[20];
             strncpy(amount_str, line + 87, 19);
             amount_str[19] = '\0';
-
-            // Parse sign and amount
             int64_t eurocents = 0;
             int sign = (amount_str[0] == '+') ? 1 : -1;
-
-            // Convert string to number, ignoring leading zeros
             for (int i = 1; i < 19; i++)
             {
                 if (isdigit(amount_str[i]))
@@ -234,12 +240,28 @@ static void kton_function(duckdb_function_info info, duckdb_data_chunk output)
                     eurocents = eurocents * 10 + (amount_str[i] - '0');
                 }
             }
-
             eurocents *= sign;
-
             duckdb_vector amount_vector = duckdb_data_chunk_get_vector(output, 8);
             int64_t *amount_data = (int64_t *)duckdb_vector_get_data(amount_vector);
             amount_data[output_size] = eurocents;
+
+            // TODO: Receipt code: 107-107 (alphanumeric)
+
+            // TODO: Transfer type: 108-108 (alphanumeric)
+
+            // TODO: Payee/Payer name: 109-143 (alphanumeric)
+
+            // TODO: Payee/Payer name source: 144-144 (alphanumeric)
+
+            // TODO: Payee's account number: 145-158 (alphanumeric)
+
+            // TODO: Payee's account change information: 159-159 (alphanumeric)
+
+            // TODO: Reference: 160-179 (number)
+
+            // TODO: Form number: 180-187 (alphanumeric)
+
+            // TODO: Level ID: 188-188 (alphanumeric)
 
             output_size++;
         }
