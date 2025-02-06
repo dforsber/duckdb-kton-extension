@@ -131,6 +131,8 @@ static void kton_bind(duckdb_bind_info info)
     duckdb_bind_add_result_column(info, "payment_date", date_type);
     duckdb_bind_add_result_column(info, "transaction_amount", bigint_type);
     duckdb_bind_add_result_column(info, "transaction_code", varchar_type);
+    duckdb_bind_add_result_column(info, "entry_node_code", varchar_type);
+    duckdb_bind_add_result_column(info, "narrative_text", varchar_type);
 
     duckdb_destroy_logical_type(&varchar_type);
     duckdb_destroy_logical_type(&int_type);
@@ -223,9 +225,20 @@ static void kton_function(duckdb_function_info info, duckdb_data_chunk output)
             field[1] = '\0';
             duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 9), output_size, field);
 
-            // TODO: Entry node code: 50-52 (alphanumeric)
+            // Entry node code: 50-52 (alphanumeric)
+            strncpy(field, line + 49, 3);
+            field[3] = '\0';
+            duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 10), output_size, field);
 
-            // TODO: Narrative text: 53-87 (alphanumeric)
+            // Narrative text: 53-87 (alphanumeric)
+            strncpy(field, line + 52, 35);
+            field[35] = '\0';
+            // Trim trailing spaces
+            int len = strlen(field);
+            while (len > 0 && field[len-1] == ' ') {
+                field[--len] = '\0';
+            }
+            duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 11), output_size, field);
 
             // Transaction amount in eurocents, including sign on 88-88
             char amount_str[20];
