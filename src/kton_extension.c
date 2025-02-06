@@ -130,6 +130,7 @@ static void kton_bind(duckdb_bind_info info)
     duckdb_bind_add_result_column(info, "value_date", date_type);
     duckdb_bind_add_result_column(info, "payment_date", date_type);
     duckdb_bind_add_result_column(info, "transaction_amount", bigint_type);
+    duckdb_bind_add_result_column(info, "transaction_code", varchar_type);
 
     duckdb_destroy_logical_type(&varchar_type);
     duckdb_destroy_logical_type(&int_type);
@@ -217,11 +218,10 @@ static void kton_function(duckdb_function_info info, duckdb_data_chunk output)
             duckdb_date *payment_data = (duckdb_date *)duckdb_vector_get_data(payment_vector);
             payment_data[output_size] = parse_yymmdd_date(field);
 
-            // TODO: Transaction code: 49-49 (alphanumeric)
-            // 1 = deposit
-            // 2 = withdrawal
-            // 3 = correction of deposit
-            // 4 = correction of withdrawal
+            // Transaction code: 49-49 (alphanumeric)
+            strncpy(field, line + 48, 1);
+            field[1] = '\0';
+            duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 9), output_size, field);
 
             // TODO: Entry node code: 50-52 (alphanumeric)
 
