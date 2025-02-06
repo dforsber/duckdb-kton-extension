@@ -133,6 +133,8 @@ static void kton_bind(duckdb_bind_info info)
     duckdb_bind_add_result_column(info, "transaction_code", varchar_type);
     duckdb_bind_add_result_column(info, "entry_node_code", varchar_type);
     duckdb_bind_add_result_column(info, "narrative_text", varchar_type);
+    duckdb_bind_add_result_column(info, "receipt_code", varchar_type);
+    duckdb_bind_add_result_column(info, "transfer_type", varchar_type);
 
     duckdb_destroy_logical_type(&varchar_type);
     duckdb_destroy_logical_type(&int_type);
@@ -259,9 +261,15 @@ static void kton_function(duckdb_function_info info, duckdb_data_chunk output)
             int64_t *amount_data = (int64_t *)duckdb_vector_get_data(amount_vector);
             amount_data[output_size] = eurocents;
 
-            // TODO: Receipt code: 107-107 (alphanumeric)
+            // Receipt code: 107-107 (alphanumeric)
+            strncpy(field, line + 106, 1);
+            field[1] = '\0';
+            duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 12), output_size, field);
 
-            // TODO: Transfer type: 108-108 (alphanumeric)
+            // Transfer type: 108-108 (alphanumeric)
+            strncpy(field, line + 107, 1);
+            field[1] = '\0';
+            duckdb_vector_assign_string_element(duckdb_data_chunk_get_vector(output, 13), output_size, field);
 
             // TODO: Payee/Payer name: 109-143 (alphanumeric)
 
