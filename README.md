@@ -1,3 +1,8 @@
+# Moved to quackscience!
+
+The extension has moved here:
+https://github.com/quackscience/duckdb-kton-extension
+
 # DuckDB KTON Extension
 
 This extension reads old [DanskeBank Bank Account Statement records](TKU_AccountStatement_KTON_UK.pdf).
